@@ -5,33 +5,42 @@ import random from "random";
 
 const path = "./data.json";
 
-const markCommit = (date) => {
-    const data = { date };
-    jsonfile.writeFile(path, data, () => {
-        simpleGit().add([path]).commit(date, { "--date": date }).push();
-    });
+const markCommit = (x, y) => {
+  const date = moment()
+    .subtract(1, "y")
+    .add(1, "d")
+    .add(x, "w")
+    .add(y, "d")
+    .format();
+
+  const data = {
+    date: date,
+  };
+
+  jsonfile.writeFile(path, data, () => {
+    simpleGit().add([path]).commit(date, { "--date": date }).push();
+  });
 };
 
-const makeCommits = (weeks) => {
-    if (weeks === 0) return;
+const makeCommits = (n) => {
+  if (n === 0) return simpleGit().push();
 
-    const commitsInWeek = random.int(6, 10);
+  const commitsThisWeek = random.int(15, 20);
 
-    for (let i = 0; i < commitsInWeek; i++) {
-        const day = random.int(0, 6);
+  for (let i = 0; i < commitsThisWeek; i++) {
+    const x = random.int(0, 4);
+    const y = random.int(0, 6);
+    let date = moment().subtract(1, "y").add(1, "d").add(x, "w").add(y, "d").format();
 
-        const date = moment()
-            .subtract(1, "y")
-            .add(1, "d")
-            .add(weeks, "w")
-            .add(day, "d")
-            .format();
-
-        console.log(`Коммит на дату: ${date}`);
-        markCommit(date);
+    const currentMonth = moment(date).month();
+    if (currentMonth >= 3) {
+      jsonfile.writeFile(path, { date: date }, () => {
+        simpleGit().add([path]).commit(date, { "--date": date });
+      });
     }
+  }
 
-    setTimeout(() => makeCommits(weeks - 1), 1000);
+  makeCommits(n - 1);
 };
 
-makeCommits(52);
+makeCommits(100);
