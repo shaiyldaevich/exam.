@@ -6,41 +6,48 @@ import random from "random";
 const path = "./data.json";
 
 const markCommit = (x, y) => {
-  const date = moment()
-    .subtract(1, "y")
-    .add(1, "d")
-    .add(x, "w")
-    .add(y, "d")
-    .format();
+    const date = moment()
+        .set("year", 2024)
+        .month(3)
+        .date(1)
+        .add(x, "w")
+        .add(y, "d")
+        .format();
 
-  const data = {
-    date: date,
-  };
+    const data = {
+        date: date,
+    };
 
-  jsonfile.writeFile(path, data, () => {
-    simpleGit().add([path]).commit(date, { "--date": date }).push();
-  });
+    jsonfile.writeFile(path, data, () => {
+        simpleGit().add([path]).commit(date, { "--date": date }).push();
+    });
 };
 
 const makeCommits = (n) => {
-  if (n === 0) return simpleGit().push();
+    if (n === 0) return simpleGit().push();
 
-  const commitsThisWeek = random.int(15, 20);
+    const commitsThisWeek = random.int(5, 8);
 
-  for (let i = 0; i < commitsThisWeek; i++) {
-    const x = random.int(0, 4);
-    const y = random.int(0, 6);
-    let date = moment().subtract(1, "y").add(1, "d").add(x, "w").add(y, "d").format();
+    for (let i = 0; i < commitsThisWeek; i++) {
+        const x = random.int(0, 4);
+        const y = random.int(0, 6);
+        let date = moment()
+            .set("year", 2024)
+            .month(3)
+            .date(1)
+            .add(x, "w")
+            .add(y, "d")
+            .format();
 
-    const currentMonth = moment(date).month();
-    if (currentMonth >= 3) {
-      jsonfile.writeFile(path, { date: date }, () => {
-        simpleGit().add([path]).commit(date, { "--date": date });
-      });
+        const currentMonth = moment(date).month();
+        if (currentMonth >= 3) {
+            jsonfile.writeFile(path, { date: date }, () => {
+                simpleGit().add([path]).commit(date, { "--date": date });
+            });
+        }
     }
-  }
 
-  makeCommits(n - 1);
+    makeCommits(n - 1);
 };
 
 makeCommits(100);
